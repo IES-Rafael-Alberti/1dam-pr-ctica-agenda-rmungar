@@ -37,6 +37,7 @@ def borrar_consola():
         os.system ("clear")
     elif os.name == "ce" or os.name == "nt" or os.name == "dos":
         os.system ("cls")
+        
 def mostrar_menu():
     print(" AGENDA")
     print("-"*8)
@@ -49,12 +50,13 @@ def mostrar_menu():
     6. Mostrar contactos por criterio
     7. Mostrar la agenda completa
     8. Salir""")
+    
 def pedir_opcion():
     try:
-        opcion=(int(input(">> Seleccione una opción: ")))
+        opcion=(int(input(">> Seleccione una opción (1-8): ")))
     except ValueError:
         print("Por favor, ingrese una opción válida")
-        opcion(int(input(">> Seleccione una opción: ")))
+        opcion(int(input(">> Seleccione una opción (1-8): ")))
     return opcion
     
 def cargar_contactos(contactos: list):
@@ -62,10 +64,17 @@ def cargar_contactos(contactos: list):
     ...
     """
     #TODO: Controlar los posibles problemas derivados del uso de ficheros...
+    contacto = {'nombre':nombre,'apellido':apellidos,'email':email,'telefono':telefono}
 
     with open(RUTA_FICHERO, 'r') as fichero:
         for linea in fichero:
-            print(linea)
+            contactos.add(linea.split(";"))
+            print(contactos)
+            
+        nombre = 
+    apellidos = 
+    email = 
+    telefono =
 
 def agregar_contacto(contactos: list):
     None
@@ -86,7 +95,6 @@ def eliminar_contacto(contactos: list, email: str):
         print(f"**Error** {e}")
         print("No se eliminó ningún contacto")
 
-
 def agenda(contactos: list):
     """ Ejecuta el menú de la agenda con varias opciones
     ...
@@ -97,10 +105,29 @@ def agenda(contactos: list):
         mostrar_menu()
         opcion = pedir_opcion()
 
-        #TODO: Se valorará que utilices la diferencia simétrica de conjuntos para comprobar que la opción es un número entero del 1 al 6
-        if opcion in ?:
-
-
+        #TODO: Se valorará que utilices la diferencia simétrica de conjuntos para comprobar que la opción es un número entero del 1 al 7
+        if opcion in OPCIONES_MENU ^ {8}:
+            if opcion == 1:
+                borrar_consola()
+                agregar_contacto(contactos)
+            elif opcion == 2:
+                borrar_consola()
+                modificar_contacto(contactos)
+            elif opcion == 3:
+                borrar_consola()
+                eliminar_contacto(contactos)
+            elif opcion == 4:
+                borrar_consola()
+                vaciar_agenda(contactos)
+            elif opcion == 5:
+                borrar_consola()
+                cargar_contactos(contactos)
+            elif opcion == 6:
+                borrar_consola()
+                filtrar_contactos(contactos)
+            elif opcion == 7:
+                borrar_consola()
+                mostrar_contactos(contactos)
 
 def pulse_tecla_para_continuar():
     """ Muestra un mensaje y realiza una pausa hasta que se pulse una tecla
