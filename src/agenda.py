@@ -64,28 +64,78 @@ def cargar_contactos(contactos: list):
     ...
     """
     #TODO: Controlar los posibles problemas derivados del uso de ficheros...
-    contacto = {'nombre':nombre,'apellido':apellidos,'email':email,'telefono':telefono}
+    
 
     with open(RUTA_FICHERO, 'r') as fichero:
         for linea in fichero:
-            contactos.add(linea.split(";"))
-            print(contactos)
+            datos = linea.split(";")
+            nombre= datos[0]
+            apellidos = datos[1]
+            email = datos[2]
+            telefonos = []
+            try: 
+                for i in range(3, len(datos)):
+                    telefono = datos[i]
+                    telefono.split(" ")
+                    telefonos.append(telefono.replace("\n","") )
+            except IndexError:
+                telefono = "No hay telefonos registrados"
+            contacto = {'nombre':nombre,'apellido': apellidos,'email':email,'telefono':telefonos}
+            contactos.append(contacto)
+    
+    
             
-        nombre = 
-    apellidos = 
-    email = 
-    telefono =
+    
 
 def agregar_contacto(contactos: list):
-    None
+    telefonos = []
+    try:
+        nombre = str(input("Ingrese el nombre: "))
+    except ValueError:
+        print("Ingrese un nombre válido")
+        nombre = str(input("Ingrese el nombre: "))
+    try:
+        apellidos = str(input("Inrgese el apellido: "))
+    except ValueError:
+        print("Ingrese un apellido válido")
+        apellidos = str(input("Inrgese el apellido: "))
+    try:
+        email = str(input("Ingrese el email: "))
+    except ValueError:
+        print("Ingrese un email válido")
+        email = str(input("Ingrese el email: "))
+    
+    try:
+        print("Para dejar de introducir teléfonos presione ENTER")
+        telefono = (input("Ingrese el teléfono: "))
+        while telefono != "":
+            while len(telefono) > 13:
+                telefono = input("Numero de teléfono demasiado largo, ingreselo otra vez: ")
+            telefono.strip(" ")
+            telefonos.append(telefono)
+            telefono = (input("Ingrese el teléfono: "))
+    except ValueError:
+        print("Formato de teléfono no válido, ingrese uno válido")
+        telefono = (input("Ingrese el teléfono: "))
+    datos = [nombre,apellidos,email,telefonos]
+    contactos.append(datos)
 
+
+def buscar_contacto(contactos:list, email:str):
+    email = input("Ingrese el email del contacto:")
+    if email in contactos:
+        pos = contactos['email']= email
+        return pos
+    else:
+        pos = None
+        return pos
 def eliminar_contacto(contactos: list, email: str):
     """ Elimina un contacto de la agenda
     ...
     """
     try:
         #TODO: Crear función buscar_contacto para recuperar la posición de un contacto con un email determinado
-
+        pos = buscar_contacto()
         if pos != None:
             del contactos[pos]
             print("Se eliminó 1 contacto")
@@ -142,7 +192,7 @@ def main():
     borrar_consola()
 
     #TODO: Asignar una estructura de datos vacía para trabajar con la agenda
-    contactos = {}
+    contactos = []
 
     #TODO: Modificar la función cargar_contactos para que almacene todos los contactos del fichero en una lista con un diccionario por contacto (claves: nombre, apellido, email y telefonos)
     #TODO: Realizar una llamada a la función cargar_contacto con todo lo necesario para que funcione correctamente.
