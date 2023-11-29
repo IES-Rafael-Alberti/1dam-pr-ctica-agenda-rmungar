@@ -26,7 +26,7 @@ NOMBRE_FICHERO = 'contactos.csv'
 RUTA_FICHERO = path.join(RUTA, NOMBRE_FICHERO)
 
 #TODO: Crear un conjunto con las posibles opciones del menú de la agenda
-OPCIONES_MENU = ?
+OPCIONES_MENU = {1,2,3,4,5,6,7,8}
 #TODO: Utiliza este conjunto en las funciones agenda() y pedir_opcion()
 
 
@@ -37,8 +37,26 @@ def borrar_consola():
         os.system ("clear")
     elif os.name == "ce" or os.name == "nt" or os.name == "dos":
         os.system ("cls")
-
-
+def mostrar_menu():
+    print(" AGENDA")
+    print("-"*8)
+    print("""
+    1. Nuevo contacto
+    2. Modificar contacto
+    3. Eliminar contacto
+    4. Vaciar agenda
+    5. Cargar agenda inicial
+    6. Mostrar contactos por criterio
+    7. Mostrar la agenda completa
+    8. Salir""")
+def pedir_opcion():
+    try:
+        opcion=(int(input(">> Seleccione una opción: ")))
+    except ValueError:
+        print("Por favor, ingrese una opción válida")
+        opcion(int(input(">> Seleccione una opción: ")))
+    return opcion
+    
 def cargar_contactos(contactos: list):
     """ Carga los contactos iniciales de la agenda desde un fichero
     ...
@@ -49,6 +67,8 @@ def cargar_contactos(contactos: list):
         for linea in fichero:
             print(linea)
 
+def agregar_contacto(contactos: list):
+    None
 
 def eliminar_contacto(contactos: list, email: str):
     """ Elimina un contacto de la agenda
@@ -73,7 +93,7 @@ def agenda(contactos: list):
     """
     #TODO: Crear un bucle para mostrar el menú y ejecutar las funciones necesarias según la opción seleccionada...
 
-    while opcion != 7:
+    while opcion != 8:
         mostrar_menu()
         opcion = pedir_opcion()
 
@@ -95,11 +115,11 @@ def main():
     borrar_consola()
 
     #TODO: Asignar una estructura de datos vacía para trabajar con la agenda
-    contactos = ?
+    contactos = {}
 
     #TODO: Modificar la función cargar_contactos para que almacene todos los contactos del fichero en una lista con un diccionario por contacto (claves: nombre, apellido, email y telefonos)
     #TODO: Realizar una llamada a la función cargar_contacto con todo lo necesario para que funcione correctamente.
-    cargar_contactos(?)
+    cargar_contactos(contactos)
 
     #TODO: Crear función para agregar un contacto. Debes tener en cuenta lo siguiente:
     # - El nombre y apellido no pueden ser una cadena vacía o solo espacios y se guardarán con la primera letra mayúscula y el resto minúsculas (ojo a los nombre compuestos)
@@ -112,13 +132,13 @@ def main():
     # - De igual manera, aunque existan espacios entre el prefijo y los 9 números al introducirlo, debe almacenarse sin espacios.
     # - Por ejemplo, será posible introducir el número +34 600 100 100, pero guardará +34600100100 y cuando se muestren los contactos, el telófono se mostrará como +34-600100100. 
     #TODO: Realizar una llamada a la función agregar_contacto con todo lo necesario para que funcione correctamente.
-    agregar_contacto(?)
+    agregar_contacto(contactos)
 
     pulse_tecla_para_continuar()
     borrar_consola()
 
     #TODO: Realizar una llamada a la función eliminar_contacto con todo lo necesario para que funcione correctamente, eliminando el contacto con el email rciruelo@gmail.com
-    eliminar_contacto(?)
+    eliminar_contacto(contactos)
 
     pulse_tecla_para_continuar()
     borrar_consola()
@@ -140,7 +160,7 @@ def main():
     # ** resto de contactos **
     #
     #TODO: Realizar una llamada a la función mostrar_contactos con todo lo necesario para que funcione correctamente.
-    mostrar_contactos(?)
+    mostrar_contactos(contactos)
 
     pulse_tecla_para_continuar()
     borrar_consola()
@@ -161,7 +181,7 @@ def main():
     #
     #TODO: Para la opción 3, modificar un contacto, deberás desarrollar las funciones necesarias para actualizar la información de un contacto.
     #TODO: También deberás desarrollar la opción 6 que deberá preguntar por el criterio de búsqueda (nombre, apellido, email o telefono) y el valor a buscar para mostrar los contactos que encuentre en la agenda.
-    agenda(?)
+    agenda(contactos)
 
 
 if __name__ == "__main__":
