@@ -122,9 +122,9 @@ def agregar_contacto(contactos: list):
 
 
 def buscar_contacto(contactos:list, email:str):
-    email = input("Ingrese el email del contacto:")
+    
     if email in contactos:
-        pos = contactos['email']= email
+        pos = contactos[email]
         return pos
     else:
         pos = None
@@ -134,8 +134,9 @@ def eliminar_contacto(contactos: list, email: str):
     ...
     """
     try:
+        email = str(input("Ingrese el email del contacto a borrar:"))
         #TODO: Crear función buscar_contacto para recuperar la posición de un contacto con un email determinado
-        pos = buscar_contacto()
+        pos = buscar_contacto(contactos, email)
         if pos != None:
             del contactos[pos]
             print("Se eliminó 1 contacto")
