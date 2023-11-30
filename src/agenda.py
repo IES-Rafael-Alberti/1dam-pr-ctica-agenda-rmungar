@@ -101,6 +101,7 @@ def agregar_contacto(contactos: list):
         apellidos = str(input("Inrgese el apellido: "))
     try:
         email = str(input("Ingrese el email: "))
+        validar_email(email)
     except ValueError:
         print("Ingrese un email válido")
         email = str(input("Ingrese el email: "))
@@ -120,21 +121,42 @@ def agregar_contacto(contactos: list):
     datos = [nombre,apellidos,email,telefonos]
     contactos.append(datos)
 
+def validar_email(email:str):
+    if email == "":
+        raise ValueError ("el email no puede ser una cadena vacía")
+    elif "@" not in email:
+        raise ValueError ("el email no es un correo válido")
+    elif email in 
+    
+    
+    
+        
+def pedir_email():
+    email = str(input("Ingrese el email: "))
+    validar_email(email)
+def validar_telefono():
 
 def buscar_contacto(contactos:list, email:str):
     
-    if email in contactos:
-        pos = contactos[email]
-        return pos
-    else:
-        pos = None
-        return pos
+    for contacto in contactos:
+        if email in contactos:
+            pos = contactos[contacto]
+            return pos
+        else:
+            pos = None
+            return pos
+    
 def eliminar_contacto(contactos: list, email: str):
     """ Elimina un contacto de la agenda
     ...
     """
+    primeraEjecucion = True
     try:
-        email = str(input("Ingrese el email del contacto a borrar:"))
+        if primeraEjecucion == True:
+            email = "rciruelo@gmail.com"
+            primeraEjecucion = False
+        else:
+            email = str(input("Ingrese el email del contacto a borrar:"))
         #TODO: Crear función buscar_contacto para recuperar la posición de un contacto con un email determinado
         pos = buscar_contacto(contactos, email)
         if pos != None:
@@ -145,6 +167,10 @@ def eliminar_contacto(contactos: list, email: str):
     except Exception as e:
         print(f"**Error** {e}")
         print("No se eliminó ningún contacto")
+
+
+def mostrar_contactos(contactos:list):
+    print(f"  AGENDA {cantidadContactos}")
 
 def agenda(contactos: list):
     """ Ejecuta el menú de la agenda con varias opciones
@@ -216,7 +242,8 @@ def main():
     borrar_consola()
 
     #TODO: Realizar una llamada a la función eliminar_contacto con todo lo necesario para que funcione correctamente, eliminando el contacto con el email rciruelo@gmail.com
-    eliminar_contacto(contactos)
+    email = "rciruelo@gmail.com"
+    eliminar_contacto(contactos, email)
 
     pulse_tecla_para_continuar()
     borrar_consola()
