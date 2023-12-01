@@ -444,7 +444,7 @@ def agenda(contactos: list, contactos_ordenados: list, emails: list):
                 modificar_contacto(contactos)
             elif opcion == 3:
                 borrar_consola()
-                eliminar_contacto(contactos, email, emai)
+                eliminar_contacto(contactos, email, emails)
             elif opcion == 4:
                 borrar_consola()
                 vaciar_agenda(contactos)
