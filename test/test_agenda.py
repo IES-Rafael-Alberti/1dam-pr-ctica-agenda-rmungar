@@ -26,10 +26,17 @@ CONTACTOS_PRUEBA = [
     {"nombre": "Rogelio", "apellido": "Rojo", "email": "rogrojo@gmail.com", "telefonos": ["610000099", "645000013"]}
 ]
 
+#Añade únicamente los emails para hacer el pytest
+EMAILS_PRUEBA = ["liglesias@gmail.com", "aamargo@gmail.com", "marcopete@gmail.com", "rciruelo@gmail.com", "danalba@gmail.com", "rogrojo@gmail.com"]
 
 @pytest.fixture
 def contactos_iniciales() -> list:
     return copy.deepcopy(CONTACTOS_PRUEBA)
+
+#Al igual que arriba, crea una funcion para poder emplear los emails en los tests
+@pytest.fixture
+def emails() -> list:
+    return copy.deepcopy(EMAILS_PRUEBA)
 
 
 def test_cargar_contactos(contactos_iniciales):
@@ -38,25 +45,25 @@ def test_cargar_contactos(contactos_iniciales):
     assert contactos == contactos_iniciales
 
 
-def test_validar_email(contactos_iniciales):
+def test_validar_email(emails):
     with pytest.raises(ValueError, match="el email no puede ser una cadena vacía"):
-        validar_email("", contactos_iniciales)
+        validar_email("", emails)
     with pytest.raises(ValueError, match="el email no es un correo válido"):
-        validar_email("correosinarroba.com", contactos_iniciales)
+        validar_email("correosinarroba.com", emails)
     with pytest.raises(ValueError, match="el email ya existe en la agenda"):
-        validar_email("rogrojo@gmail.com", contactos_iniciales)
+        validar_email("rogrojo@gmail.com", emails)
 
 
-def test_pedir_email(monkeypatch, contactos_iniciales):
+def test_pedir_email(monkeypatch, emails):
     monkeypatch.setattr('builtins.input', lambda _: "")
     with pytest.raises(ValueError, match="el email no puede ser una cadena vacía"):
-        pedir_email(contactos_iniciales)
+        pedir_email(emails)
     monkeypatch.setattr('builtins.input', lambda _: "correosinarroba.com")
     with pytest.raises(ValueError, match="el email no es un correo válido"):
-        pedir_email(contactos_iniciales)
+        pedir_email(emails)
     monkeypatch.setattr('builtins.input', lambda _: "marcopete@gmail.com")
     with pytest.raises(ValueError, match="el email ya existe en la agenda"):
-        pedir_email(contactos_iniciales)
+        pedir_email(emails)
 
 
 @pytest.mark.parametrize(

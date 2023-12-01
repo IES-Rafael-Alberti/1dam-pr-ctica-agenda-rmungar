@@ -101,7 +101,7 @@ def agregar_contacto(contactos: list, emails: list):
     telefonos = []
     valido = False
 
-#Va a pedir 1 por uno al usuario que ingrese el dato correspondiente y hasta que este no cumpla las condiciones, no continua
+#Va a pedir 1 por 1 al usuario que ingrese el dato correspondiente y hasta que este no cumpla las condiciones no continua
    
     while valido == False:
         nombre = (input("Ingrese el nombre: ")).title()
@@ -120,9 +120,10 @@ def agregar_contacto(contactos: list, emails: list):
     valido = False
 
     while valido == False:
-        email = pedir_email(emails)
         try:
-            if validar_email(email, contactos) == True:
+            email = pedir_email(emails)
+            if email != None:
+                emails.append(email)
                 valido = True
         except ValueError as e:
             print(e)
@@ -176,17 +177,21 @@ def pedir_email(emails: list):
         email (str) -> retorna una cadena con el email del usuario en caso de que sea válido, sino, retornará un booleano indicandolo
     
     """
-    email = str(input("Ingrese el email: "))
-    validar_email(email, emails)
-    if email == "" or email == " ":
-        raise ValueError ("el email no puede ser una cadena vacía")
-    elif "@" not in email:
-        raise ValueError ("el email no es un correo válido")
-    elif email in emails:
-        raise ValueError ("el email ya existe en la agenda") 
-    if validar_email(email, emails) == True:
-        emails.append(email)
-        return email
+    valido = False
+
+    while valido ==False:
+        email = str(input("Ingrese el email: "))
+        validar_email(email, emails)
+        if email == "" or email == " ":
+            raise ValueError("el email no puede ser una cadena vacía")
+        elif "@" not in email:
+            raise ValueError("el email no es un correo válido")
+        elif email in emails:
+            raise ValueError("el email ya existe en la agenda")
+        else:
+            valido = True
+            return email
+
 
 def validar_email(email:str, emails: list):
     """Funcion que únicamente comprueba la validez de un email
@@ -197,13 +202,13 @@ def validar_email(email:str, emails: list):
         bool -> En caso de que el email sea válido
     """
     if email == "" or email == " ":
-        raise ValueError ("el email no puede ser una cadena vacía")
+        raise ValueError("el email no puede ser una cadena vacía")
     elif "@" not in email:
-        raise ValueError ("el email no es un correo válido")
+        raise ValueError("el email no es un correo válido")
     elif email in emails:
-        raise ValueError ("el email ya existe en la agenda") 
+        raise ValueError("el email ya existe en la agenda") 
     else:
-        return True
+        return email, True
   
 def buscar_contacto(contactos:list, email:str):
     """Función que busca a un contacto en función de un email
@@ -281,6 +286,7 @@ def ordenar_contactos(contactos:list):
                 contactos_ordenados.append(orden[j])
                 del orden[j]
             j += 1
+    contactos_ordenados.append(orden[0])
     return contactos_ordenados
 
 def filtrar_contactos(contactos: list):
@@ -289,7 +295,7 @@ def filtrar_contactos(contactos: list):
         contactos (list) -> lista anidada con la información de los contactos
     """
     #Pide al usuario que ingrese un criterio y compara este criterio con las 4 posible opciones
-    
+
     criterio = input("Ingrese el criterio de búsqueda; nombre, apellido, email o telefono: ").lower()
     if criterio == 'nombre':
         nombre = input("Ingrese el nombre a buscar: ").title()
@@ -414,11 +420,12 @@ def modificar_contacto(contactos:list):
         else:
             print(f"No hay concidencia en {contacto['nombre']}")
 
-def agenda(contactos: list, contactos_ordenados: list):
+def agenda(contactos: list, contactos_ordenados: list, emails: list):
     """ Ejecuta el menú de la agenda con varias opciones
     Args:
         contactos (list) -> lista anidada con la informacion de los contactos
         contactos_ordenados (list) -> lista ordenada alfabéticamente
+        emails (list) -> lista de todos los emails introducidos anteriormente
     """
     #TODO: Crear un bucle para mostrar el menú y ejecutar las funciones necesarias según la opción seleccionada...
     email = "rciruelo@gmail.com"
@@ -437,7 +444,7 @@ def agenda(contactos: list, contactos_ordenados: list):
                 modificar_contacto(contactos)
             elif opcion == 3:
                 borrar_consola()
-                eliminar_contacto(contactos, email)
+                eliminar_contacto(contactos, email, emai)
             elif opcion == 4:
                 borrar_consola()
                 vaciar_agenda(contactos)
@@ -468,13 +475,13 @@ def main():
     borrar_consola()
 
     #TODO: Asignar una estructura de datos vacía para trabajar con la agenda
-    emails = []
+    
     contactos = []
+    emails, contactos = cargar_contactos(contactos)
     contactos_ordenados = []
     email = "rciruelo@gmail.com"
     #TODO: Modificar la función cargar_contactos para que almacene todos los contactos del fichero en una lista con un diccionario por contacto (claves: nombre, apellido, email y telefonos)
     #TODO: Realizar una llamada a la función cargar_contacto con todo lo necesario para que funcione correctamente.
-    cargar_contactos(contactos)
 
     #TODO: Crear función para agregar un contacto. Debes tener en cuenta lo siguiente:
     # - El nombre y apellido no pueden ser una cadena vacía o solo espacios y se guardarán con la primera letra mayúscula y el resto minúsculas (ojo a los nombre compuestos)
@@ -493,7 +500,7 @@ def main():
     borrar_consola()
 
     #TODO: Realizar una llamada a la función eliminar_contacto con todo lo necesario para que funcione correctamente, eliminando el contacto con el email rciruelo@gmail.com
-    eliminar_contacto(contactos, email)
+    eliminar_contacto(contactos, email, emails)
 
     pulse_tecla_para_continuar()
     borrar_consola()
@@ -536,7 +543,7 @@ def main():
     #
     #TODO: Para la opción 3, modificar un contacto, deberás desarrollar las funciones necesarias para actualizar la información de un contacto.
     #TODO: También deberás desarrollar la opción 6 que deberá preguntar por el criterio de búsqueda (nombre, apellido, email o telefono) y el valor a buscar para mostrar los contactos que encuentre en la agenda.
-    agenda(contactos, contactos_ordenados)
+    agenda(contactos, contactos_ordenados, emails)
 
 if __name__ == "__main__":
     main()
