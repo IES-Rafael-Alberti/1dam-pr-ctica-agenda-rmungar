@@ -39,6 +39,8 @@ def borrar_consola():
         os.system ("cls")
         
 def mostrar_menu():
+    """Muestra un menú sencillo con las diferentes opciones de la agenda
+    """
     print(" AGENDA")
     print("-"*8)
     print("""
@@ -52,6 +54,10 @@ def mostrar_menu():
     8. Salir""")
     
 def pedir_opcion():
+    """Solicita al usuario que ingrese una opción de 1 al 8 y controla que el usuario ingrese algo que no corresponda
+    Retruns:
+        opcion (int) -> Retorna un entero como resultado
+    """
     try: 
         opcion=int(input(">> Seleccione una opción (1-8): "))
     except ValueError:
@@ -61,7 +67,11 @@ def pedir_opcion():
     
 def cargar_contactos(contactos: list):
     """ Carga los contactos iniciales de la agenda desde un fichero
-    ...
+    Args:
+        contactos (list) -> Una lista vacía a la que se le añadirán diccionarios con los datos de los contactos
+    Returns:
+        emails (list) -> Una lista con los emails de los contactos para comprobar si estos se repetirán posteriormente
+        contactos(list) -> La misma lista que toma como argumento, pero ya con los datos 
     """
     #TODO: Controlar los posibles problemas derivados del uso de ficheros...
     emails = []
@@ -83,10 +93,16 @@ def cargar_contactos(contactos: list):
     return emails, contactos
     
 def agregar_contacto(contactos: list, emails: list):
+    """ Función que preguntará al usuario por los campos necesarios para crear un nuevo contacto
+    Args:
+        contactos (list) -> Una lista anidada con diccionarios con los datos correspondientes de cada contacto
+        emails (list) -> Una lista con todos los emails de los usuarios iniciales
+    """
     telefonos = []
     valido = False
 
-    
+#Va a pedir 1 por uno al usuario que ingrese el dato correspondiente y hasta que este no cumpla las condiciones, no continua
+   
     while valido == False:
         nombre = (input("Ingrese el nombre: ")).title()
         if nombre == "":
@@ -128,6 +144,12 @@ def agregar_contacto(contactos: list, emails: list):
     contactos.append(datos)
     
 def validar_telefono(telefono:str):
+        """Funcion que va a comprobar si el teléfono introducido por el usuario cumple los requisitos o no
+        Args: 
+            telefono (str) -> Número de telefono ingresado por el usuario
+        Returns:
+            bool -> Retorna un booleano en caso de que el teléfono cumpla los requisitos o no
+        """
         telefono.strip(" ")
         if "-" in telefono:
             prefijo = telefono.split("-")
@@ -147,6 +169,13 @@ def validar_telefono(telefono:str):
             return False
   
 def pedir_email(emails: list):
+    """Función que pide al usuario que ingrese un email y comprueba su validez.
+    Args:
+        emails (list) -> lista en la que el programa se va a basar para comprobar si el email es repetido o no
+    Returns:
+        email (str) -> retorna una cadena con el email del usuario en caso de que sea válido, sino, retornará un booleano indicandolo
+    
+    """
     email = str(input("Ingrese el email: "))
     validar_email(email, emails)
     if email == "" or email == " ":
@@ -155,11 +184,18 @@ def pedir_email(emails: list):
         raise ValueError ("el email no es un correo válido")
     elif email in emails:
         raise ValueError ("el email ya existe en la agenda") 
-    else:
+    if validar_email(email, emails) == True:
         emails.append(email)
         return email
 
 def validar_email(email:str, emails: list):
+    """Funcion que únicamente comprueba la validez de un email
+    Args:
+        email (str) -> Cadena ingresada por el usuario
+        emails (lista) -> Lista de emails ingresados previamente
+    Returns:
+        bool -> En caso de que el email sea válido
+    """
     if email == "" or email == " ":
         raise ValueError ("el email no puede ser una cadena vacía")
     elif "@" not in email:
@@ -170,6 +206,14 @@ def validar_email(email:str, emails: list):
         return True
   
 def buscar_contacto(contactos:list, email:str):
+    """Función que busca a un contacto en función de un email
+    Args:
+        contactos (list) -> Lista anidada con diccionarios con la información correspondiente de cada contacto
+        email (str) -> cadena inngresada por el usuario en función a la cual se va a bucar a un contacto
+    Returns:
+        pos (int) -> valor posicional de el contacto en la lista contactos
+        None -> en caso de que no se ecuentre el contacto
+    """
     cont = 0
     for contacto in contactos:
         if contacto["email"] == email:
@@ -178,9 +222,12 @@ def buscar_contacto(contactos:list, email:str):
         cont +=1
     return None
 
-def eliminar_contacto(contactos: list, email:str):
+def eliminar_contacto(contactos: list, email:str, emails: list):
     """ Elimina un contacto de la agenda
-    ...
+    Args:
+        contactos (list) -> lista con todos los contactos y su información correspondiente
+        email (str) -> cadena ingresada por el usuario, la primera ejecución, toma un valor predefinido
+        emails (list) -> lista con todos los emails ya ingresados
     """
     try:
         #TODO: Crear función buscar_contacto para recuperar la posición de un contacto con un email determinado
@@ -189,6 +236,7 @@ def eliminar_contacto(contactos: list, email:str):
             email = str(input("Ingrese el email del contacto a borrar:"))
         pos = buscar_contacto(contactos, email)
         if pos != None:
+            emails.remove(email)
             del contactos[pos]
             print("Se eliminó 1 contacto")
             email = ""
@@ -198,6 +246,11 @@ def eliminar_contacto(contactos: list, email:str):
         print("No se eliminó ningún contacto")
 
 def mostrar_contactos(contactos:list, contactos_ordenados: list):
+    """Función qu ese encarga de mostrar los contactos en la consola, llama a ordenar_contactos() en el proceso
+    Args:
+        contactos (list) -> lista original de contactos con la informacion de los clientes
+        contactos_ordenados (list) -> copia de la original (contactos) ordenada alfabéticamente
+    """
     contactos_ordenados = ordenar_contactos(contactos)
     for contacto in contactos_ordenados:
         if contacto['telefonos'] == "" or contacto['telefonos'] == [""]:
@@ -213,6 +266,12 @@ def mostrar_contactos(contactos:list, contactos_ordenados: list):
         print("."*10)
 
 def ordenar_contactos(contactos:list):
+    """Función ordenadora alfabeticamente
+    Args:
+        contactos (list) -> lista anidada con la información de los contactos del usuario
+    Returns:
+        contactos_ordenados (list) -> copia de la original ordenada alfabéticamente 
+    """
     contactos_ordenados = []
     orden = contactos.copy()
     for i in range(0, len(contactos)):
@@ -225,7 +284,13 @@ def ordenar_contactos(contactos:list):
     return contactos_ordenados
 
 def filtrar_contactos(contactos: list):
-    criterio = input("Ingrese el criterio de búsqueda. Nombre, apellido, email o telefono: ").lower()
+    """Función encargada de filtrar los contactos en función de una característica concreta decidida por el usuario
+    Args: 
+        contactos (list) -> lista anidada con la información de los contactos
+    """
+    #Pide al usuario que ingrese un criterio y compara este criterio con las 4 posible opciones
+    
+    criterio = input("Ingrese el criterio de búsqueda; nombre, apellido, email o telefono: ").lower()
     if criterio == 'nombre':
         nombre = input("Ingrese el nombre a buscar: ").title()
         pos = 0
@@ -266,10 +331,18 @@ def filtrar_contactos(contactos: list):
                     imprimir_filtrado(contactos, pos, coincidencias)
                 else:
                     pos += 1
+    elif criterio not in {'nombre','apellido','email','telefono'}:
+        print("--Opción inválida--")
     if coincidencias == 0:
         print("--No se encontraron coincidencias--")
 
 def imprimir_filtrado(contactos: list, pos: int, coincidencias: int):
+    """Función que imprime los contactos filtrados en la función anterior
+    Args:
+        contactos (list) -> lista anidada con la información de los contactos
+        pos (int) -> número entero que indica la posición en la que se encontró una coincidencia
+        coincidencias (int) -> número entero que indica el número de coincidencias encontradas
+    """
     print(f" {coincidencias} Coincidencias ")
     print("-"*17)
     print(f"Nombre: {contactos[pos]["nombre"]} {contactos[pos]["apellido"]}     ({contactos[pos]["email"]})", end=("\n"))
@@ -277,9 +350,14 @@ def imprimir_filtrado(contactos: list, pos: int, coincidencias: int):
     print("."*10)      
 
 def vaciar_agenda(contactos:list):
+    """Vacia la lista contactos por completo"""
     contactos.clear()
 
 def modificar_contacto(contactos:list):
+    """Función que pregunra al usuario por el nombre del usuario a modificar y posteriormente por que característica de este desea modificar
+    Args:
+        contactos (list) -> lista anidada con la información de los contactos del usuario   
+    """
     nombre = input("Ingrese el nombre del contacto a modificar: ").title()
     for contacto in contactos:
         if contacto["nombre"] == nombre:
@@ -338,7 +416,9 @@ def modificar_contacto(contactos:list):
 
 def agenda(contactos: list, contactos_ordenados: list):
     """ Ejecuta el menú de la agenda con varias opciones
-    ...
+    Args:
+        contactos (list) -> lista anidada con la informacion de los contactos
+        contactos_ordenados (list) -> lista ordenada alfabéticamente
     """
     #TODO: Crear un bucle para mostrar el menú y ejecutar las funciones necesarias según la opción seleccionada...
     email = "rciruelo@gmail.com"
@@ -372,6 +452,9 @@ def agenda(contactos: list, contactos_ordenados: list):
                 mostrar_contactos(contactos, contactos_ordenados)
             pulse_tecla_para_continuar()
             borrar_consola()
+        if opcion == -1:
+            borrar_consola()
+            print("--Opción no válida-- \n Ingrese otra opción ")
             
 def pulse_tecla_para_continuar():
     """ Muestra un mensaje y realiza una pausa hasta que se pulse una tecla
