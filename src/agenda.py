@@ -52,41 +52,37 @@ def mostrar_menu():
     8. Salir""")
     
 def pedir_opcion():
-    try:
-        opcion=(int(input(">> Seleccione una opción (1-8): ")))
+    try: 
+        opcion=int(input(">> Seleccione una opción (1-8): "))
     except ValueError:
-        print("Por favor, ingrese una opción válida")
-        opcion(int(input(">> Seleccione una opción (1-8): ")))
-    return opcion
+        return -1
+    else:
+        return opcion
     
 def cargar_contactos(contactos: list):
     """ Carga los contactos iniciales de la agenda desde un fichero
     ...
     """
     #TODO: Controlar los posibles problemas derivados del uso de ficheros...
-    
+    emails = []
 
     with open(RUTA_FICHERO, 'r') as fichero:
         for linea in fichero:
             datos = linea.split(";")
             nombre = datos[0]
             apellidos = datos[1]
-            email = datos[2]
+            email = datos[2].strip("\n")
             telefonos = []
             for i in range(3, len(datos)):
                 telefono = datos[i]
                 telefono.split(" ")
                 telefonos.append(telefono.replace("\n",""))
-            if telefonos == []:
-                telefonos.append("Ninguno")
-            contacto = {'nombre':nombre,'apellido': apellidos,'email':email,'telefono':telefonos}
+            contacto = {'nombre':nombre,'apellido': apellidos,'email':email,'telefonos':telefonos}
             contactos.append(contacto)
+            emails.append(email)
+    return emails, contactos
     
-    
-            
-    
-
-def agregar_contacto(contactos: list):
+def agregar_contacto(contactos: list, emails: list):
     telefonos = []
     valido = False
 
@@ -108,7 +104,7 @@ def agregar_contacto(contactos: list):
     valido = False
 
     while valido == False:
-        email = str(input("Ingrese el email: "))
+        email = pedir_email(emails)
         try:
             if validar_email(email, contactos) == True:
                 valido = True
@@ -128,40 +124,51 @@ def agregar_contacto(contactos: list):
                 print("Numero de teléfono no válido")
             telefono = (input("Ingrese el teléfono: "))
     
-    datos = {"nombre":nombre,"apellido":apellidos,"email":email,"telefono":telefonos}
+    datos = {"nombre":nombre,"apellido":apellidos,"email":email,"telefonos":telefonos}
     contactos.append(datos)
-
-def validar_email(email:str, contactos:list):
-    if email == "":
-        raise ValueError ("el email no puede ser una cadena vacía")
-    elif "@" not in email:
-        raise ValueError ("el email no es un correo válido")
-    else:
-        for contacto in contactos:
-            if email == contacto["email"]:
-                raise ValueError ("el email ya existe en la agenda")
-            else:
-                return True
     
 def validar_telefono(telefono:str):
         telefono.strip(" ")
-        telefono.split("-")
+        if "-" in telefono:
+            prefijo = telefono.split("-")
+            if prefijo[0] != '+34':
+                return False
+        if "-" not in telefono and "+34" in telefono:
+            return True
+        if "+" in telefono:
+            telefono[1:2].split()
+            if telefono[0] != 34:
+                return False
+            else: 
+                return True
         if len(telefono) == 12 or len(telefono) == 9 and telefono != int:
             return True
         else:
             return False
+  
+def pedir_email(emails: list):
+    email = str(input("Ingrese el email: "))
+    validar_email(email, emails)
+    if email == "" or email == " ":
+        raise ValueError ("el email no puede ser una cadena vacía")
+    elif "@" not in email:
+        raise ValueError ("el email no es un correo válido")
+    elif email in emails:
+        raise ValueError ("el email ya existe en la agenda") 
+    else:
+        emails.append(email)
+        return email
 
-        
-def pedir_email(contactos: list):
-    try:
-        email = str(input("Ingrese el email: "))
-        validar_email(email, contactos)
-    except ValueError:
-        print(ValueError)
-    
-
-
-
+def validar_email(email:str, emails: list):
+    if email == "" or email == " ":
+        raise ValueError ("el email no puede ser una cadena vacía")
+    elif "@" not in email:
+        raise ValueError ("el email no es un correo válido")
+    elif email in emails:
+        raise ValueError ("el email ya existe en la agenda") 
+    else:
+        return True
+  
 def buscar_contacto(contactos:list, email:str):
     cont = 0
     for contacto in contactos:
@@ -190,27 +197,84 @@ def eliminar_contacto(contactos: list, email:str):
         print(f"**Error** {e}")
         print("No se eliminó ningún contacto")
 
-
-def mostrar_contactos(contactos:list):
+def mostrar_contactos(contactos:list, contactos_ordenados: list):
+    contactos_ordenados = ordenar_contactos(contactos)
+    for contacto in contactos_ordenados:
+        if contacto['telefonos'] == "" or contacto['telefonos'] == [""]:
+            contacto['telefonos'] == "Ninguno"
     cantidad_contactos = 0
-    for _ in contactos:
+    for _ in contactos_ordenados:
         cantidad_contactos +=1
     print(f" AGENDA {cantidad_contactos}")
     print("-"*10)
-    for contacto in contactos:
+    for contacto in contactos_ordenados:
         print(f"Nombre: {contacto["nombre"]} {contacto["apellido"]}     ({contacto["email"]})", end=("\n"))
-        print(f"Teléfonos: {contacto["telefono"][0:]}")
+        print(f"Teléfonos: {contacto["telefonos"][0:]}")
         print("."*10)
 
 def ordenar_contactos(contactos:list):
-    orden = []
-    for contacto in contactos:
-        orden.append(contacto['nombre'])
-    orden.sort()
-    for contacto, puesto in contactos, orden:
-        
-        
+    contactos_ordenados = []
+    orden = contactos.copy()
+    for i in range(0, len(contactos)):
+        j = 0
+        while j < len(orden):
+            if contactos[i]['nombre'] > orden[j]['nombre']:
+                contactos_ordenados.append(orden[j])
+                del orden[j]
+            j += 1
+    return contactos_ordenados
 
+def filtrar_contactos(contactos: list):
+    criterio = input("Ingrese el criterio de búsqueda. Nombre, apellido, email o telefono: ").lower()
+    if criterio == 'nombre':
+        nombre = input("Ingrese el nombre a buscar: ").title()
+        pos = 0
+        for contacto in contactos:
+            coincidencias = 0
+            if contacto['nombre'] == nombre:
+                coincidencias += 1
+                imprimir_filtrado(contactos, pos, coincidencias)
+            else:
+                pos += 1
+    elif criterio == 'apellido':
+            apellido = input("Ingrese el apellido a buscar: ").title()
+            pos = 0
+            for contacto in contactos:
+                coincidencias = 0
+                if contacto['apellido'] == apellido:
+                    coincidencias += 1
+                    imprimir_filtrado(contactos, pos, coincidencias)
+                else:
+                    pos += 1
+    elif criterio == 'email':
+            email = input("Ingrese el email a buscar: ")
+            pos = 0
+            for contacto in contactos:
+                coincidencias = 0
+                if contacto['email'] == email:
+                    coincidencias += 1
+                    imprimir_filtrado(contactos, pos, coincidencias)
+                else:
+                    pos += 1
+    elif criterio == 'telefono':
+            telefono = input("Ingrese el telefono a buscar: ")
+            pos = 0
+            for contacto in contactos:
+                coincidencias = 0
+                if contacto['telefonos'] == telefono:
+                    coincidencias += 1
+                    imprimir_filtrado(contactos, pos, coincidencias)
+                else:
+                    pos += 1
+    if coincidencias == 0:
+        print("--No se encontraron coincidencias--")
+
+def imprimir_filtrado(contactos: list, pos: int, coincidencias: int):
+    print(f" {coincidencias} Coincidencias ")
+    print("-"*17)
+    print(f"Nombre: {contactos[pos]["nombre"]} {contactos[pos]["apellido"]}     ({contactos[pos]["email"]})", end=("\n"))
+    print(f"Teléfonos: {contactos[pos]["telefonos"][0:]}")
+    print("."*10)      
 
 def vaciar_agenda(contactos:list):
     contactos.clear()
@@ -221,7 +285,7 @@ def modificar_contacto(contactos:list):
         if contacto["nombre"] == nombre:
             modificar = True
             while modificar:
-                cambio = str(input("Ingrese que es lo que desea modificar, nombre, apellido, email o telefono: "))
+                cambio = str(input("Ingrese que es lo que desea modificar, nombre, apellido, email o teléfono: "))
                 if cambio == "nombre":
                     contacto["nombre"] = input("Ingrese el nuevo nombre: ").title()
                     usuario = input("¿Desea seguir modificando datos del mismo contacto? (s/n): ")
@@ -251,17 +315,17 @@ def modificar_contacto(contactos:list):
                     if opcion in {'a','A'}:
                         telefono = input("Ingrese el numero de teléfono a añadir: ")
                         if validar_telefono(telefono) == True:
-                            if contacto['telefono'] == "":
-                                contacto['telefono'] = telefono
+                            if contacto['telefonos'] == "":
+                                contacto['telefonos'] = telefono
                             else:
-                                contacto['telefono']+=telefono
+                                contacto['telefonos']+=telefono
                         else: 
                             print("Teléfono no válido")
                     elif opcion in {'m','M'}:
-                        cual = input(f"Elija uno entre 1 y {len(contacto['telefono'])}: ")
-                        if cual in range(1, len(contacto['telefono'])):
+                        cual = input(f"Elija uno entre 1 y {len(contacto['telefonos'])}: ")
+                        if cual in range(1, len(contacto['telefonos'])):
                             telefono = input("Ingrese el numero de teléfono a añadir: ")
-                            contacto['telefono'][int(cual)-1] = telefono
+                            contacto['telefonos'][int(cual)-1] = telefono
                     usuario = input("¿Desea seguir modificando datos del mismo contacto? (s/n): ")
                     if usuario in {'s','S'}:
                         modificar = True
@@ -272,13 +336,13 @@ def modificar_contacto(contactos:list):
         else:
             print(f"No hay concidencia en {contacto['nombre']}")
 
-
-def agenda(contactos: list):
+def agenda(contactos: list, contactos_ordenados: list):
     """ Ejecuta el menú de la agenda con varias opciones
     ...
     """
     #TODO: Crear un bucle para mostrar el menú y ejecutar las funciones necesarias según la opción seleccionada...
     email = "rciruelo@gmail.com"
+    contactos_ordenados = []
     opcion = 0
     while opcion != 8:
         mostrar_menu()
@@ -305,17 +369,15 @@ def agenda(contactos: list):
                 filtrar_contactos(contactos)
             elif opcion == 7:
                 borrar_consola()
-                mostrar_contactos(contactos)
+                mostrar_contactos(contactos, contactos_ordenados)
             pulse_tecla_para_continuar()
-        else:
-            opcion == -1
-        
+            borrar_consola()
+            
 def pulse_tecla_para_continuar():
     """ Muestra un mensaje y realiza una pausa hasta que se pulse una tecla
     """
     print("\n")
     os.system("pause")
-
 
 def main():
     """ Función principal del programa
@@ -323,7 +385,9 @@ def main():
     borrar_consola()
 
     #TODO: Asignar una estructura de datos vacía para trabajar con la agenda
+    emails = []
     contactos = []
+    contactos_ordenados = []
     email = "rciruelo@gmail.com"
     #TODO: Modificar la función cargar_contactos para que almacene todos los contactos del fichero en una lista con un diccionario por contacto (claves: nombre, apellido, email y telefonos)
     #TODO: Realizar una llamada a la función cargar_contacto con todo lo necesario para que funcione correctamente.
@@ -340,7 +404,7 @@ def main():
     # - De igual manera, aunque existan espacios entre el prefijo y los 9 números al introducirlo, debe almacenarse sin espacios.
     # - Por ejemplo, será posible introducir el número +34 600 100 100, pero guardará +34600100100 y cuando se muestren los contactos, el telófono se mostrará como +34-600100100. 
     #TODO: Realizar una llamada a la función agregar_contacto con todo lo necesario para que funcione correctamente.
-    agregar_contacto(contactos)
+    agregar_contacto(contactos, emails)
 
     pulse_tecla_para_continuar()
     borrar_consola()
@@ -368,7 +432,7 @@ def main():
     # ** resto de contactos **
     #
     #TODO: Realizar una llamada a la función mostrar_contactos con todo lo necesario para que funcione correctamente.
-    mostrar_contactos(contactos)
+    mostrar_contactos(contactos, contactos_ordenados)
 
     pulse_tecla_para_continuar()
     borrar_consola()
@@ -389,8 +453,7 @@ def main():
     #
     #TODO: Para la opción 3, modificar un contacto, deberás desarrollar las funciones necesarias para actualizar la información de un contacto.
     #TODO: También deberás desarrollar la opción 6 que deberá preguntar por el criterio de búsqueda (nombre, apellido, email o telefono) y el valor a buscar para mostrar los contactos que encuentre en la agenda.
-    agenda(contactos)
-
+    agenda(contactos, contactos_ordenados)
 
 if __name__ == "__main__":
     main()
